@@ -9,12 +9,14 @@ const cleanText = (text) => {
       if (chatId.toString() === groupCapture) {
         const { caption, photo, video, media_group_id } = msg;
   
-        // Se a mensagem fizer parte de um grupo de mídia, adicione à buffer
+        // Verifica se a mensagem faz parte de um grupo de mídia
         if (media_group_id) {
+          // Inicializa o buffer se ele não existir
           if (!mediaGroupBuffer[media_group_id]) {
             mediaGroupBuffer[media_group_id] = [];
           }
   
+          // Adiciona a mídia ao buffer correspondente
           if (photo) {
             mediaGroupBuffer[media_group_id].push({
               type: 'photo',
@@ -30,9 +32,9 @@ const cleanText = (text) => {
           }
   
           // Verifica se todas as mídias do grupo foram recebidas
-          if (mediaGroupBuffer[media_group_id].length >= photo.length) {
+          if (mediaGroupBuffer[media_group_id].length >= photo.length || video) {
             await bot.sendMediaGroup(groupSender, mediaGroupBuffer[media_group_id]);
-            delete mediaGroupBuffer[media_group_id]; // Limpa o buffer
+            delete mediaGroupBuffer[media_group_id]; // Limpa o buffer após o envio
           }
         } else {
           // Mensagem fora de grupo de mídia
@@ -45,7 +47,7 @@ const cleanText = (text) => {
         }
       }
     } catch (error) {
-      console.error('Erro ao processar mensagem:', error);
+      console.error('Erro ao processar mensagem:', error.message);
     }
   };
   
